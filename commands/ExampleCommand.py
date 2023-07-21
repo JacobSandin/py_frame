@@ -1,14 +1,18 @@
-from classes.base.Log import Log
 from commands.base.Command import Command
-
+import argparse
 
 class ExampleCommand(Command):
     def __init__(self, values, args):
-        self.values = values
-        self.args = args
-    
+        super().__init__(values, args)
+
+        parser = argparse.ArgumentParser(description='Example command')
+        parser.add_argument('--print', dest='print',
+                            help='Just print something')
+        self.args = parser.parse_args(self.args)
+        
     def run(self):
         super().run()
-        self.log("LOG: Example")
-        print("Hello Example")
+        if self.args.print:
+            self.log("LOG: Example")
+            print("Hello Example")
     

@@ -55,15 +55,15 @@ def split_known_unknown_args(args_list):
     except ValueError:
         return args_list, []
     
-def convert_unknown_args(args):
-    args_dict = {}
-    i = 0
-    while i < len(args):
-        key = args[i].lstrip('--')
-        value = args[i + 1] if i + 1 < len(args) and not args[i + 1].startswith('--') else True
-        args_dict[key] = value
-        i += 1 if value is True else 2
-    return args_dict
+# def convert_unknown_args(args):
+#     args_dict = {}
+#     i = 0
+#     while i < len(args):
+#         key = args[i].lstrip('--')
+#         value = args[i + 1] if i + 1 < len(args) and not args[i + 1].startswith('--') else True
+#         args_dict[key] = value
+#         i += 1 if value is True else 2
+#     return args_dict
 
 if __name__ == "__main__":
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("--command", type=str, nargs='?', default='ExampleCommand', help="The command name, same as the file name in commands without .py.")
     args, _ = parser.parse_known_args(known_args)
 
-    unknown_args = convert_unknown_args(unknown_args)
+    #unknown_args = convert_unknown_args(unknown_args)
 
     #print("Known args:", args)
     print("Passing on unknown args:", unknown_args)
