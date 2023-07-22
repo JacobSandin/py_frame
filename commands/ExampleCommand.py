@@ -15,4 +15,7 @@ class ExampleCommand(Command):
         if self.args.print:
             self.log("LOG: Example")
             print("Hello Example")
+        else:
+            self.log("LOG: You did not specify --print True")
+            print("You did not specify --print True")
     
