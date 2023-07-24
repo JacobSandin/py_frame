@@ -47,15 +47,25 @@ class Main(Log):
             print(self.values.get("config"))
 
         self.commands = { }
-        self.command_classes = self.get_command_classes()
-        self.log(self.command_classes)
-        self.log("TODO: Fix so classes can report their command prhase, help and assign parser args via static functions")
+        
+        
         
         # Manually split known and unknown arguments
-        self.known_args, self.unknown_args = self.split_known_unknown_args(sys.argv[1:])
-        parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
-        parser.add_argument("--command", type=str, nargs='?', default='ExampleCommand', help="The command name, same as the file name in commands without .py.")
-        self.args, _ = parser.parse_known_args(self.known_args)
+        #self.known_args, self.unknown_args = self.split_known_unknown_args(sys.argv[1:])
+        self.parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
+
+        self.subparsers = self.parser.add_subparsers(title='command', dest='command')
+        
+        
+        #do this here so that all command classes can add their own sub-commands
+        self.command_classes = self.get_command_classes()
+
+        self.args = self.parser.parse_args()
+
+        self.log(self.command_classes)
+        
+        #parser.add_argument("--command", type=str, nargs='?', default='ExampleCommand', help="The command name, same as the file name in commands without .py.")
+        #self.args, _ = parser.parse_known_args(self.known_args)
 
 
 
@@ -66,6 +76,10 @@ class Main(Log):
         static_methods = [name for name, value in inspect.getmembers(class_object) if inspect.isfunction(value) and isinstance(inspect.getattr_static(class_object, value.__name__), staticmethod)]
         self.log(f"{class_object.__name__} has {len(static_methods)} static methods ({', '.join(static_methods)})")
         
+        if 'init_argparser' in static_methods:
+            class_object.init_argparser(self.subparsers)
+            
+            
         if 'get_command' in static_methods:
             command = class_object.get_command()
             self.commands[command] = "commands."+class_object.__name__+"."+class_object.__name__ 
@@ -120,14 +134,14 @@ class Main(Log):
         except (ValueError, AttributeError, ModuleNotFoundError):
             raise ImportError(f"Could not import class: {class_name}")
 
-    def split_known_unknown_args(self, args_list):
-        try:
-            command_index = args_list.index('--command')
-            known_args = args_list[:command_index + 2]  # Include the '--command' and its value
-            unknown_args = args_list[command_index + 2:]  # Skip the '--command' and its value
-            return known_args, unknown_args
-        except ValueError:
-            return args_list, []
+    # def split_known_unknown_args(self, args_list):
+    #     try:
+    #         command_index = args_list.index('--command')
+    #         known_args = args_list[:command_index + 2]  # Include the '--command' and its value
+    #         unknown_args = args_list[command_index + 2:]  # Skip the '--command' and its value
+    #         return known_args, unknown_args
+    #     except ValueError:
+    #         return args_list, []
         
     def run(self):
       
@@ -139,7 +153,7 @@ class Main(Log):
             
             #my_class = import_class(command_name)
             my_class = self.import_class(self.commands[self.args.command])
-            command = my_class(self.values, self.unknown_args)
+            command = my_class(self.values,self.args)
             command.run()
         except ImportError as e:
             self.log(f"Error: {e}")        

@@ -20,9 +20,22 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--command", "ExampleCommand",
+               "ExampleCommand",
 
             ],        
-        },         
+        },       
+        {
+            "name": "Example: print params",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+               "ExampleCommand",
+               "--print",
+
+            ],        
+        },              
     ]
 }
