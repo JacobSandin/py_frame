@@ -1,6 +1,9 @@
-#import os
+import os
 import argparse
 import sys
+import ast
+import inspect
+import importlib
 # 1. DEBUG: Detailed information, typically useful for debugging purposes.
 # 2. INFO: General information about the execution of the application.
 # 3. WARNING: An indication that something unexpected or potentially problematic has occurred, but the application can still continue running.
@@ -30,7 +33,46 @@ from classes.DataUtils import DataUtils
 # from commands.ZMQServer import ZMQServer
 # from commands.ZMQClient import ZMQClient
 
-import importlib
+
+
+
+def do_class_static_methods(class_object):
+    static_methods = [name for name, value in inspect.getmembers(class_object) if inspect.isfunction(value) and isinstance(inspect.getattr_static(class_object, value.__name__), staticmethod)]
+    print(f"{class_object.__name__} has {len(static_methods)} satic methods ({', '.join(static_methods)})")
+    
+    if 'get_command' in static_methods:
+        print('Command: ', class_object.get_command())
+
+def get_class_names_from_file(file_path):
+    with open(file_path, 'r') as file:
+        tree = ast.parse(file.read())
+    class_names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            class_names.append(node.name)
+
+    return class_names
+
+def get_command_classes():
+    commands_dir = './commands'
+    class_names = []
+    for filename in os.listdir(commands_dir):
+        filepath = os.path.join(commands_dir, filename)
+        if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
+            module_name = os.path.splitext(filename)[0]
+            spec = importlib.util.spec_from_file_location(module_name, filepath)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            for class_name in get_class_names_from_file(filepath):
+                class_object = getattr(module, class_name)
+                do_class_static_methods(class_object)
+                class_names.append(class_name)
+
+    return class_names
+
+
+
 def import_class(class_name):
     try:
         # Split the class name into module and class parts
@@ -55,31 +97,19 @@ def split_known_unknown_args(args_list):
     except ValueError:
         return args_list, []
     
-# def convert_unknown_args(args):
-#     args_dict = {}
-#     i = 0
-#     while i < len(args):
-#         key = args[i].lstrip('--')
-#         value = args[i + 1] if i + 1 < len(args) and not args[i + 1].startswith('--') else True
-#         args_dict[key] = value
-#         i += 1 if value is True else 2
-#     return args_dict
 
 if __name__ == "__main__":
 
-
+    command_classes = get_command_classes()
+    print(command_classes)
+    print("TODO: Fix so classes can report their command prhase, help and assign parser args via static functions")
+    
     # Manually split known and unknown arguments
     known_args, unknown_args = split_known_unknown_args(sys.argv[1:])
     parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
     parser.add_argument("--command", type=str, nargs='?', default='ExampleCommand', help="The command name, same as the file name in commands without .py.")
     args, _ = parser.parse_known_args(known_args)
 
-    #unknown_args = convert_unknown_args(unknown_args)
-
-    #print("Known args:", args)
-    print("Passing on unknown args:", unknown_args)
-    
-    
     # Load the configuration
     config_loader = ConfigLoader()
     config_loader.load_config()

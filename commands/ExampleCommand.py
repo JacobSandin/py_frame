@@ -10,6 +10,10 @@ class ExampleCommand(Command):
                             help='Just print something')
         self.args = parser.parse_args(self.args)
         
+    @staticmethod
+    def get_command():
+        return 'Example22'
+        
     def run(self):
         super().run()
         if self.args.print:
