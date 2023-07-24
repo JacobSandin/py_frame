@@ -6,6 +6,18 @@ class Log:
     def __init__(self, values):
         self.values = values
             
+    def warn(self, *messages):
+        self.log(*messages, level='warning')
+    
+    def error(self, *messages):
+        self.log(*messages, level='error')
+        
+    def debug(self, *messages):
+        self.log(*messages, level='debug')
+        
+    def info(self, *messages):
+        self.log(*messages, level='info')
+        
     def log(self, *messages, level='debug', clear=False, end='\n'):
         class_name = self.__class__.__name__
         # Check if log filtering is enabled and regex patterns are set
