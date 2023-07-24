@@ -6,4 +6,4 @@ class Command(Log):
         self.args = args
     
     def run(self):
-        pass
+        raise NotImplementedError
