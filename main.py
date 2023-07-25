@@ -87,7 +87,7 @@ class Main(Log):
             self.log(f'Command: {command} in {self.commands[command]}')
         else:
             self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
-            self.log(f'Command: {class_object.__name__} in {self.commands[command]}')
+            self.log(f'Command: {class_object.__name__} in {class_object.__name__}')
 
     def get_class_names_from_file(self, file_path):
         with open(file_path, 'r') as file:
