@@ -4,6 +4,16 @@ import sys
 import ast
 import inspect
 import importlib
+
+# Check if the --debug flag is provided as an environment variable
+enable_debugging = os.environ.get('DEBUG', 'false').lower() == 'true'
+
+#Enable debugging if the flag is set
+if enable_debugging:
+    import ptvsd
+    ptvsd.enable_attach(address=('0.0.0.0', 5678))
+    ptvsd.wait_for_attach()
+
 # 1. DEBUG: Detailed information, typically useful for debugging purposes.
 # 2. INFO: General information about the execution of the application.
 # 3. WARNING: An indication that something unexpected or potentially problematic has occurred, but the application can still continue running.
@@ -55,8 +65,7 @@ class Main(Log):
         self.parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
 
         self.subparsers = self.parser.add_subparsers(title='command', dest='command')
-        
-        
+
         #do this here so that all command classes can add their own sub-commands
         self.command_classes = self.get_command_classes()
 
@@ -152,7 +161,13 @@ class Main(Log):
         try:
             
             #my_class = import_class(command_name)
-            my_class = self.import_class(self.commands[self.args.command])
+            if self.args.command in self.commands:
+                my_class = self.import_class(self.commands[self.args.command])
+            else:
+                self.warn(f"Unknown, unsupported or no command. You can try running 'python3 main.py ExampleCommand'")
+                return
+                
+                
             command = my_class(self.values,self.args)
             command.run()
         except ImportError as e:
