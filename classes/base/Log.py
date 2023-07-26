@@ -17,6 +17,9 @@ class Log:
         
     def info(self, *messages):
         self.log(*messages, level='info')
+
+    def print(self, *messages):
+        self.log(*messages, level='info')
         
     def log(self, *messages, level='debug', clear=False, end='\n'):
         class_name = self.__class__.__name__
