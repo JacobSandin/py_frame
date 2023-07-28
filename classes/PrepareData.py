@@ -4,8 +4,9 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 pd.options.mode.chained_assignment = None  # default='warn'
 import pickle
+from classes.base.AddValues import AddValues
 
-class PrepareData:
+class PrepareData(AddValues):
     def __init__(self, values, config=None):
         self.values = values
         self.bband = 0

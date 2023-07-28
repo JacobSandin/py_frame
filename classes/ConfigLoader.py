@@ -1,9 +1,9 @@
 import importlib.util
 import os
-from classes.base.Log import Log
+from classes.base.AddValues import AddValues
 #Loads config from local/config/ or if missing there it uses config found in config/
 
-class ConfigLoader(Log):
+class ConfigLoader(AddValues):
     def __init__(self):
         self.config = {}
 

@@ -6,6 +6,9 @@ class Log:
     def __init__(self, values):
         self.values = values
             
+    def trace(self, *messages):
+        self.log(*messages, level='trace')
+    
     def warn(self, *messages):
         self.log(*messages, level='warning')
     

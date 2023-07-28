@@ -1,9 +1,9 @@
 import pymysql
 import re
 import time
-from classes.base.Log import Log
+from classes.base.AddValues import AddValues
 
-class DataUtils(Log):
+class DataUtils(AddValues):
     def __init__(self, values):
         self.values = values
         self.connection = None

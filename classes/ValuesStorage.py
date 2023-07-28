@@ -1,9 +1,9 @@
 import json
-from classes.base.Log import Log
+from classes.base.AddValues import AddValues
 
 from pympler.asizeof import asizeof
 
-class ValuesStorage(Log):
+class ValuesStorage(AddValues):
     def __init__(self):
         self.data = {}
         self.values = self

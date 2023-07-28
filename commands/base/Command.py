@@ -1,9 +1,12 @@
-from classes.base.Log import Log
+from classes.base.AddValues import AddValues
 
-class Command(Log):
+class Command(AddValues):
     def __init__(self, values, args):
-        self.values=values
+        super().__init__(values)
+        # self.values=values
         self.args = args
     
     def run(self):
         raise NotImplementedError
+    
+    

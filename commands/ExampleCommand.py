@@ -23,10 +23,23 @@ class ExampleCommand(Command):
         
         
     def run(self):
-        if self.args.print:
-            self.log("LOG: Example")
-            print("Hello Example")
+        self.set("MyVar", "Hey you!")       #Set a variable from Command-->AddValues (set() method)
+        self.info("Example")
+        self.warn("Example")
+        self.error("Example")
+        self.debug("Example")
+        self.trace("Example")
+        print()
+        print()
+        print("MyVar", self.get("MyVar"))           #Use the variable from Command->AddValues (get() method)
+        print('============================================')
+        print()
+                
+        if self.args.print:                 #If you used --print initialized in the static argparser method
+            self.log("Using print as Example")        #Use log functions from Command->AddValues->Log
+            print("Hello print Example")
         else:
+
             self.log("LOG: You did not specify --print True")
             print("You did not specify --print True")
     
