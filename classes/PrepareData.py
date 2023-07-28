@@ -213,7 +213,7 @@ class PrepareData(AddValues):
 
         return distance_to_support_pips, distance_to_resistance_pips
 
-    def preprocess_data(self, df, digits=5, include_predict=False, predict_change=False, drop_columns=['momentum','movement']): #, include_predict=False,shift=0,ma1=0,ma2=0,digits=5,offset_years=0, percentile=False):    
+    def preprocess_data(self, df, digits=5, predict_change=False, drop_columns=['momentum','movement']): #, include_predict=False,shift=0,ma1=0,ma2=0,digits=5,offset_years=0, percentile=False):    
         if self.offset_years >0:
             df.index -= pd.DateOffset(years=self.offset_years)
         df['month'] = df.index.month
