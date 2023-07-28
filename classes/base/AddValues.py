@@ -30,3 +30,14 @@ class AddValues(Log):
             file_path_name += ".pkl"
         with open(f"output/{file_path_name}", 'wb') as file:
             pickle.dump(self.get_dict(), file)
+            
+    def load_from_file(self, file_path_name, import_dict=True):
+        import pickle
+        if ".pkl" not in file_path_name:
+            file_path_name += ".pkl"
+        with open(f"output/{file_path_name}", 'rb') as file:
+            dict = pickle.load(file)
+            if import_dict:
+                self_path = f'command.{self.class_name}'
+                self.values.set(self_path, dict)
+            return dict
