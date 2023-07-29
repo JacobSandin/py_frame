@@ -11,14 +11,19 @@ CONFIG = {
         'debug': True,
         'force': False,
         'include_regex': '(Query took)',
-        'remove_regex': None,
+        'exclude_regex': None,
     },
     'ExampleCommand' : {
         'debug': True,
         'force': False,
         'include_regex': None,
-        'remove_regex': None,
+        'exclude_regex': None,
+    },
+    'PrepareData' : {
+        'debug': True,
+        'force': False,
+        'include_regex': None,
+        'exclude_regex': r'(Sequence|Labels)',
     }
-
 
 }
