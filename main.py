@@ -88,6 +88,9 @@ class Main(Log):
         
         if 'init_argparser' in static_methods:
             class_object.init_argparser(self.subparsers)
+        else:
+            shared_parser = argparse.ArgumentParser(add_help=False)
+            parser_class = self.subparsers.add_parser(class_object.__name__, help=f'{class_object.__name__} command', parents=[shared_parser])
             
             
         if 'get_command' in static_methods:
