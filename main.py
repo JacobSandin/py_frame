@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import argparse
-import sys
 import ast
 import inspect
 import importlib
@@ -54,7 +53,7 @@ class Main(Log):
         self.values = ValuesStorage()
         self.values.set('config',config_loader.config)
         self.config =self.values.get('config')
-        if self.values.is_debug('MAIN'):
+        if self.values.is_debug('Main'):
             print(self.values.get("config"))
 
         self.commands = { }
@@ -94,10 +93,11 @@ class Main(Log):
             
             
         if 'get_command' in static_methods:
-            command = class_object.get_command()
-            self.commands[command] = "commands."+class_object.__name__+"."+class_object.__name__ 
-            self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
-            self.log(f'Command: {command} in {self.commands[command]}')
+            commands = class_object.get_command()
+            for command in commands:
+                self.commands[command] = "commands."+class_object.__name__+"."+class_object.__name__ 
+                self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
+                self.log(f'Command: {command} in {self.commands[command]}')
         else:
             self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
             self.log(f'Command: {class_object.__name__} in {class_object.__name__}')

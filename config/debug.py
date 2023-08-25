@@ -3,7 +3,7 @@ CONFIG = {
     'override': False,
     'full': False, #Gives fucking everything no pardon
     
-    'MAIN' : {
+    'Main' : {
         'debug': False,
         'force': True,
     },
