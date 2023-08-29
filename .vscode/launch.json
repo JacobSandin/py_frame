@@ -25,6 +25,18 @@
             ],        
         },       
         {
+            "name": "Alembic",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+               "UpgradeDB",
+
+            ],        
+        },         
+        {
             "name": "Example: print params",
             "type": "python",
             "request": "launch",
@@ -32,7 +44,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-               "ExampleCommand",
+               "ExampleCommand2",
                "--print",
 
             ],        

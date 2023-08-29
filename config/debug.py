@@ -4,7 +4,7 @@ CONFIG = {
     'full': False, #Gives fucking everything no pardon
     
     'Main' : {
-        'debug': False,
+        'debug': True,
         'force': True,
     },
     'DataUtils' : {

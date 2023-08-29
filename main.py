@@ -4,7 +4,8 @@ import argparse
 import ast
 import inspect
 import importlib
-
+import sys
+sys.path.append('./project/commands')
 # Check if the --debug flag is provided as an environment variable
 enable_debugging = os.environ.get('DEBUG', 'false').lower() == 'true'
 
@@ -81,7 +82,7 @@ class Main(Log):
 
         self.values.set('objects.DataUtils', DataUtils(self.values))
         
-    def do_class_static_methods(self, class_object):
+    def do_class_static_methods(self, class_object, class_base_path='commands'):
         static_methods = [name for name, value in inspect.getmembers(class_object) if inspect.isfunction(value) and isinstance(inspect.getattr_static(class_object, value.__name__), staticmethod)]
         self.log(f"{class_object.__name__} has {len(static_methods)} static methods ({', '.join(static_methods)})")
         
@@ -95,11 +96,11 @@ class Main(Log):
         if 'get_command' in static_methods:
             commands = class_object.get_command()
             for command in commands:
-                self.commands[command] = "commands."+class_object.__name__+"."+class_object.__name__ 
-                self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
+                self.commands[command] = class_base_path+"."+class_object.__name__+"."+class_object.__name__ 
+                self.commands[class_object.__name__] = class_base_path+"."+class_object.__name__+"."+class_object.__name__ 
                 self.log(f'Command: {command} in {self.commands[command]}')
         else:
-            self.commands[class_object.__name__] = "commands."+class_object.__name__+"."+class_object.__name__ 
+            self.commands[class_object.__name__] = class_base_path+"."+class_object.__name__+"."+class_object.__name__ 
             self.log(f'Command: {class_object.__name__} in {class_object.__name__}')
 
     def get_class_names_from_file(self, file_path):
@@ -113,10 +114,70 @@ class Main(Log):
         return class_names
 
     def get_command_classes(self):
-        commands_dir = './commands'
         class_names = []
-        for filename in os.listdir(commands_dir):
-            filepath = os.path.join(commands_dir, filename)
+        if os.path.exists('./project/commands') and os.path.isdir('./project/commands'):
+            self.import_classes_from_directory('./project/commands', 'project.commands', class_names)
+
+        self.import_classes_from_directory('./commands', 'commands', class_names)
+            
+        if os.path.exists('./project_example/commands') and os.path.isdir('./project_example/commands'):
+            self.import_classes_from_directory('./project_example/commands', 'project_example.commands', class_names)
+
+        return class_names
+         
+        
+        # commands_dir = './commands'
+        # class_names = []
+        # for filename in os.listdir(commands_dir):
+        #     filepath = os.path.join(commands_dir, filename)
+        #     if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
+        #         module_name = os.path.splitext(filename)[0]
+        #         spec = importlib.util.spec_from_file_location(module_name, filepath)
+        #         module = importlib.util.module_from_spec(spec)
+        #         spec.loader.exec_module(module)
+
+        #         for class_name in self.get_class_names_from_file(filepath):
+        #             class_object = getattr(module, class_name)
+        #             self.do_class_static_methods(class_object, class_base_path='commands')
+        #             class_names.append(class_name)
+
+        # commands_dir = './project/commands'
+        # if os.path.exists(commands_dir) and os.path.isdir(commands_dir):
+        #     class_names = []
+        #     for filename in os.listdir(commands_dir):
+        #         filepath = os.path.join(commands_dir, filename)
+        #         if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
+        #             module_name = os.path.splitext(filename)[0]
+        #             spec = importlib.util.spec_from_file_location(module_name, filepath)
+        #             module = importlib.util.module_from_spec(spec)
+        #             spec.loader.exec_module(module)
+
+        #             for class_name in self.get_class_names_from_file(filepath):
+        #                 class_object = getattr(module, class_name)
+        #                 self.do_class_static_methods(class_object, class_base_path='project.commands')
+        #                 class_names.append(class_name)
+
+
+        # commands_dir = './project_example/commands'
+        # class_names = []
+        # for filename in os.listdir(commands_dir):
+        #     filepath = os.path.join(commands_dir, filename)
+        #     if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
+        #         module_name = os.path.splitext(filename)[0]
+        #         spec = importlib.util.spec_from_file_location(module_name, filepath)
+        #         module = importlib.util.module_from_spec(spec)
+        #         spec.loader.exec_module(module)
+
+        #         for class_name in self.get_class_names_from_file(filepath):
+        #             class_object = getattr(module, class_name)
+        #             self.do_class_static_methods(class_object, class_base_path='project_example.commands')
+        #             class_names.append(class_name)
+                                        
+        # return class_names
+
+    def import_classes_from_directory(self, directory, class_base_path, class_names):
+        for filename in os.listdir(directory):
+            filepath = os.path.join(directory, filename)
             if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
                 module_name = os.path.splitext(filename)[0]
                 spec = importlib.util.spec_from_file_location(module_name, filepath)
@@ -124,13 +185,11 @@ class Main(Log):
                 spec.loader.exec_module(module)
 
                 for class_name in self.get_class_names_from_file(filepath):
+                    if class_name in class_names:  # Check for duplicates before processing
+                        continue
                     class_object = getattr(module, class_name)
-                    self.do_class_static_methods(class_object)
+                    self.do_class_static_methods(class_object, class_base_path=class_base_path)
                     class_names.append(class_name)
-
-        return class_names
-
-
 
     def import_class(self, class_name):
         try:
