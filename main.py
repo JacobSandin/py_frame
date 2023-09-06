@@ -54,8 +54,7 @@ class Main(Log):
         self.values = ValuesStorage()
         self.values.set('config',config_loader.config)
         self.config =self.values.get('config')
-        if self.values.is_debug('Main'):
-            print(self.values.get("config"))
+        self.debug(self.values.get("config"))
 
         self.commands = { }
         
@@ -160,19 +159,20 @@ class Main(Log):
 
         # commands_dir = './project_example/commands'
         # class_names = []
-        # for filename in os.listdir(commands_dir):
-        #     filepath = os.path.join(commands_dir, filename)
-        #     if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
-        #         module_name = os.path.splitext(filename)[0]
-        #         spec = importlib.util.spec_from_file_location(module_name, filepath)
-        #         module = importlib.util.module_from_spec(spec)
-        #         spec.loader.exec_module(module)
+        # if os.path.exists(commands_dir) and os.path.isdir(commands_dir):
+        #     for filename in os.listdir(commands_dir):
+        #         filepath = os.path.join(commands_dir, filename)
+        #         if filename.endswith('.py') and os.path.isfile(filepath) and filename != '__init__.py':
+        #             module_name = os.path.splitext(filename)[0]
+        #             spec = importlib.util.spec_from_file_location(module_name, filepath)
+        #             module = importlib.util.module_from_spec(spec)
+        #             spec.loader.exec_module(module)
 
-        #         for class_name in self.get_class_names_from_file(filepath):
-        #             class_object = getattr(module, class_name)
-        #             self.do_class_static_methods(class_object, class_base_path='project_example.commands')
-        #             class_names.append(class_name)
-                                        
+        #             for class_name in self.get_class_names_from_file(filepath):
+        #                 class_object = getattr(module, class_name)
+        #                 self.do_class_static_methods(class_object, class_base_path='project_example.commands')
+        #                 class_names.append(class_name)
+                                            
         # return class_names
 
     def import_classes_from_directory(self, directory, class_base_path, class_names):

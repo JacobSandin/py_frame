@@ -13,6 +13,9 @@ class ConfigLoader(AddValues):
 
         # Load local configuration from local/config directory
         self._load_config_from_dir('local/config')
+        
+        # Load local configuration from project/local/config directory
+        self._load_config_from_dir('project/local/config')
 
     def _load_config_from_dir(self, config_dir):
         module_names = self._get_module_names(config_dir)
@@ -36,11 +39,30 @@ class ConfigLoader(AddValues):
         spec.loader.exec_module(module)
         return module
 
+    # def _update_config(self, module_key, module_config):
+    #     if module_key not in self.config:
+    #         self.config[module_key] = {}
+    #     for key, value in module_config.items():
+    #         self.config[module_key][key] = value
+
+    #Override all values in base_dict with values that exist in override_dict
+    def _update_dict(self, base_dict, override_dict):
+        for key, value in override_dict.items():
+            if key in base_dict and isinstance(base_dict[key], dict) and isinstance(value, dict):
+                self._update_dict(base_dict[key], value)
+            else:
+                base_dict[key] = value
+                
     def _update_config(self, module_key, module_config):
         if module_key not in self.config:
             self.config[module_key] = {}
-        for key, value in module_config.items():
-            self.config[module_key][key] = value
 
+        for key, value in module_config.items():
+            if key in self.config[module_key] and isinstance(self.config[module_key][key], dict):
+                self._update_dict(self.config[module_key][key], value)
+            else:
+                self.config[module_key][key] = value
+
+                
     def get_config(self):
         return self.config
