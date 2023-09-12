@@ -14,7 +14,8 @@ class ConfigLoader(AddValues):
         # Load local configuration from local/config directory
         self._load_config_from_dir('local/config')
         
-        # Load local configuration from project/local/config directory
+        # Load local configuration from project directory
+        self._load_config_from_dir('project/config')
         self._load_config_from_dir('project/local/config')
 
     def _load_config_from_dir(self, config_dir):

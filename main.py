@@ -40,7 +40,7 @@ if enable_debugging:
 
 from classes.ConfigLoader import ConfigLoader
 from classes.ValuesStorage import ValuesStorage
-from classes.DataUtils import DataUtils
+# from classes.DataUtils import DataUtils
 # from commands.ZMQServer import ZMQServer
 # from commands.ZMQClient import ZMQClient
 
@@ -79,7 +79,7 @@ class Main(Log):
 
 
 
-        self.values.set('objects.DataUtils', DataUtils(self.values))
+        #self.values.set('objects.DataUtils', DataUtils(self.values))
         
     def do_class_static_methods(self, class_object, class_base_path='commands'):
         static_methods = [name for name, value in inspect.getmembers(class_object) if inspect.isfunction(value) and isinstance(inspect.getattr_static(class_object, value.__name__), staticmethod)]
