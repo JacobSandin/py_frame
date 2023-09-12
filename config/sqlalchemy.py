@@ -1,6 +1,6 @@
 CONFIG = {
     "alembic": {
-        "script_location": "alembic",
+        "script_location": "project/alembic",
         # Uncomment and modify the line below if you want to prepend date and time to filenames
         "file_template": "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s",
         "timezone": "",  # Leave blank for localtime
@@ -10,7 +10,7 @@ CONFIG = {
         "version_path_separator": "os",  # Use os.pathsep. Default configuration used for new projects.
         "recursive_version_locations": "false",
         "output_encoding": "utf-8",
-        "sqlalchemy.url": "mariadb+pymysql://alembic:alembic@172.16.0.139/alembic"
+        "sqlalchemy.url": "mariadb+pymysql://user:pass@host/database"
     },
     "post_write_hooks": {
         # Add your post_write_hooks configurations here
