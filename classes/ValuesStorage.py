@@ -10,33 +10,6 @@ class ValuesStorage(AddValues):
         self.if_debug_print_memory_every=100
         self.if_debug_print_memory_every_tick=0
 
-    def is_debug(self, obj_name=None):
-        config_debug = self.get('config.debug.debug')
-        
-        if self.get('config.debug.full', default=False):
-            return True
-        
-        if not obj_name:
-            return config_debug
-
-        # Start by getting the object's configuration
-        obj_config = self.get(f'config.debug.{obj_name}')
-
-        if obj_config is None:
-            return config_debug
-
-        if obj_config.get('force', False):
-            return obj_config.get('debug', config_debug)
-
-        # Check if 'override' is set to True in the global configuration
-        override_enabled = self.get('config.debug.override', default=False)
-
-        # If 'override' is enabled, use the object's 'debug' value directly
-        if override_enabled:
-            return config_debug
-        else:
-            return obj_config.get('debug', config_debug)
-
     def get(self, key_path, default=None):
         nested_dict = self.data
         keys = key_path.split('.')
