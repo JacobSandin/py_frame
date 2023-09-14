@@ -9,19 +9,19 @@ CONFIG = {
         'force': True,
     },
     'DataUtils' : {
-        'debug': True,
+        'log_level': ['debug', 'info', 'warning', 'error'],
         'force': False,
         'include_regex': '(Query took)',
         'exclude_regex': None,
     },
     'ExampleCommand' : {
-        'debug': True,
+        'log_level': ['debug', 'info', 'warning', 'error'],
         'force': False,
         'include_regex': None,
         'exclude_regex': None,
     },
     'PrepareData' : {
-        'debug': True,
+        'log_level': ['debug', 'info', 'warning', 'error'],
         'force': False,
         'include_regex': None,
         'exclude_regex': r'(Sequence|Labels)',
