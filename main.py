@@ -53,6 +53,7 @@ class Main(Log):
         config_loader.load_config()
         self.values = ValuesStorage()
         self.values.set('config',config_loader.config)
+        super().__init__(self.values)
         self.config =self.values.get('config')
         self.debug(self.values.get("config"))
 
@@ -238,7 +239,7 @@ class Main(Log):
         
 
 if __name__ == "__main__":
-
+    values = ValuesStorage()
     main=Main()
     main.run()
     

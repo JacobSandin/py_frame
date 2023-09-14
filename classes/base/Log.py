@@ -5,7 +5,8 @@ from datetime import datetime
 class Log():
     def __init__(self, values):
         self.values = values
-        
+        self.file_path = self.values.get('config.debug.file_path')
+        self.log_file = None       
     
     # def print_level(self, level, log_level):
     #     if log_level == 'debug':
@@ -30,33 +31,44 @@ class Log():
 
     def print(self, *messages):
         self.log(*messages, level='info')
-        
+
+    def write_to_log_file(self, message):
+        if self.log_file is None:
+            self.open_log_file()
+
+        if self.log_file:
+            try:
+                self.log_file.write(message + '\n')
+                self.log_file.flush()  # Flush to ensure the message is written immediately
+            except Exception as e:
+                print(f"Error writing to log file: {str(e)}")
+                self.close_log_file()
+
     def log(self, *messages, level='debug', clear=False, end='\n'):
         class_name = self.__class__.__name__
-        # Check if log filtering is enabled and regex patterns are set
 
         if self.ok_to_log(level):
             log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
             log_exclude_regex = self.values.get(f'config.debug.{class_name}.exclude_regex', default=None)
 
-            # Concatenate all the messages into a single string
             message = " ".join(str(msg) for msg in messages)
 
             if log_include_regex is None or (log_include_regex and re.search(log_include_regex, message)):
                 if log_exclude_regex and re.search(log_exclude_regex, message):
-                    return  # Log message matches remove pattern, don't print
+                    return
                 else:
                     size = asizeof(self)
                     size = self.human_readable_size(size)
+                    log_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}'
                     if clear:
-                        print(message, end=end)
+                        print(log_message, end=end)
                     else:
-                        print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}', end=end)        
+                        print(log_message, end=end)
+                    self.write_to_log_file(f"{log_message}")  # Write to the log file
 
     def log_size(self, key_path, item, above=5000000):
         class_name = self.__class__.__name__
         message = f"[{class_name}] SIZE {key_path} = "
-        # Check if log filtering is enabled and regex patterns are set
 
         if self.ok_to_log('debug'):
             log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
@@ -69,7 +81,50 @@ class Log():
                     size = asizeof(item)
                     if size > above:
                         size = self.human_readable_size(size)
-                        print(f"[{class_name}] SIZE {key_path} {size}")
+                        log_message = f"[{class_name}] SIZE {key_path} {size}"
+                        print(log_message)
+                        self.write_to_log_file(log_message)  # Write to the log file
+
+        
+    # def log(self, *messages, level='debug', clear=False, end='\n'):
+    #     class_name = self.__class__.__name__
+    #     # Check if log filtering is enabled and regex patterns are set
+
+    #     if self.ok_to_log(level):
+    #         log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
+    #         log_exclude_regex = self.values.get(f'config.debug.{class_name}.exclude_regex', default=None)
+
+    #         # Concatenate all the messages into a single string
+    #         message = " ".join(str(msg) for msg in messages)
+
+    #         if log_include_regex is None or (log_include_regex and re.search(log_include_regex, message)):
+    #             if log_exclude_regex and re.search(log_exclude_regex, message):
+    #                 return  # Log message matches remove pattern, don't print
+    #             else:
+    #                 size = asizeof(self)
+    #                 size = self.human_readable_size(size)
+    #                 if clear:
+    #                     print(message, end=end)
+    #                 else:
+    #                     print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}', end=end)        
+
+    # def log_size(self, key_path, item, above=5000000):
+    #     class_name = self.__class__.__name__
+    #     message = f"[{class_name}] SIZE {key_path} = "
+    #     # Check if log filtering is enabled and regex patterns are set
+
+    #     if self.ok_to_log('debug'):
+    #         log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
+    #         log_exclude_regex = self.values.get(f'config.debug.{class_name}.exclude_regex', default=None)
+
+    #         if log_include_regex is None or (log_include_regex and re.search(log_include_regex, message)):
+    #             if log_exclude_regex and re.search(log_exclude_regex, message):
+    #                 return
+    #             else:
+    #                 size = asizeof(item)
+    #                 if size > above:
+    #                     size = self.human_readable_size(size)
+    #                     print(f"[{class_name}] SIZE {key_path} {size}")
         
     def human_readable_size(self, size):
         # Your implementation of converting size to a human-readable format
@@ -142,3 +197,37 @@ class Log():
     #         return config_debug
     #     else:
     #         return obj_config.get('debug', config_debug)
+    
+    def open_log_file(self):
+        try:
+            self.log_file = open(self.file_path, 'a')  # Open the log file for appending
+        except FileNotFoundError:
+            # If the file doesn't exist, create it
+            self.log_file = open(self.file_path, 'w')
+        except Exception as e:
+            print(f"Error opening log file: {str(e)}")
+
+    def close_log_file(self):
+        if self.log_file:
+            try:
+                self.log_file.close()
+            except Exception as e:
+                print(f"Error closing log file: {str(e)}")
+            self.log_file = None
+
+    def write_to_log_file(self, message):     
+        if self.log_file is None:
+            self.open_log_file()
+
+        if self.log_file:
+            try:
+                self.log_file.write(message + '\n')
+                self.log_file.flush()  # Flush to ensure the message is written immediately
+            except Exception as e:
+                print(f"Error writing to log file: {str(e)}")
+                self.close_log_file()
+
+    # def __del__(self):
+    #     if self.file_path is None:
+    #         return
+    #     self.close_log_file()

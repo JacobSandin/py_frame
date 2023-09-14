@@ -1,10 +1,11 @@
 CONFIG = {
-    'debug': True,
+    'file_path': 'output/py_frame.log',
+    'log_level': ['debug', 'info', 'warning', 'error'],
     'override': False,
     'full': False, #Gives fucking everything no pardon
     
     'Main' : {
-        'debug': True,
+        'log_level': ['debug', 'info', 'warning', 'error'],
         'force': True,
     },
     'DataUtils' : {
