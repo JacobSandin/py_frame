@@ -43,17 +43,17 @@ class ExampleCommand(Command):
         self.error("Example")
         self.debug("Example")
         self.trace("Example")
-        print()
-        print()
-        print("MyVar", self.get("MyVar"))           #Use the variable from Command->AddValues (get() method)
-        print('============================================')
-        print()
+        self.print()
+        self.print()
+        self.print("MyVar", self.get("MyVar"))           #Use the variable from Command->AddValues (get() method)
+        self.print('============================================')
+        self.print()
                 
         if self.args.print:                 #If you used --print initialized in the static argparser method
             self.log("Using print as Example")        #Use log functions from Command->AddValues->Log
-            print("Hello print Example")
+            self.print("Hello print Example")
         else:
 
             self.log("LOG: You did not specify --print True")
-            print("You did not specify --print True")
+            self.print("You did not specify --print True")
     

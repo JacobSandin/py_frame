@@ -46,7 +46,7 @@ class MyCommand(Command):
 
     def run(self, args):
         # Add your command's code here
-        print("Running my custom command")
+        self.print("Running my custom command")
 ```
 
 You can also define a `get_command` static method to provide an alternate name for the command.
@@ -64,7 +64,7 @@ class MyCommand(Command):
 
     def run(self, args):
         # Add your command's code here
-        print("Running my custom command")
+        self.print("Running my custom command")
 ```
 
 You would then run your custom command with:

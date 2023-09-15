@@ -6,6 +6,7 @@ from classes.base.AddValues import AddValues
 class DataUtils(AddValues):
     def __init__(self, values):
         self.values = values
+        super().__init__(self.values)
         self.connection = None
         
         self.check_tables()

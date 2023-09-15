@@ -9,3 +9,4 @@ local/
 logs/
 tmp/
 project/
+output/

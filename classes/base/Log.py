@@ -1,18 +1,17 @@
 import re
+import os
 from pympler.asizeof import asizeof
 from datetime import datetime
+import sys
+from io import StringIO
+import builtins
 
 class Log():
     def __init__(self, values):
         self.values = values
         self.file_path = self.values.get('config.debug.file_path')
-        self.log_file = None       
-    
-    # def print_level(self, level, log_level):
-    #     if log_level == 'debug':
-    #         return True
-    #     else if log_level == 'info' and level == 'debug':
-    #         return false
+        self.log_file = None
+        self.last_print_had_newline = True  
         
     def trace(self, *messages):
         self.log(*messages, level='trace')
@@ -29,8 +28,13 @@ class Log():
     def info(self, *messages):
         self.log(*messages, level='info')
 
-    def print(self, *messages):
-        self.log(*messages, level='info')
+    def print(self, *messages, **kwargs):
+        message = " ".join(str(msg) for msg in messages)
+        builtins.print(*messages, **kwargs)
+        if 'end' in kwargs and kwargs['end'] != '\n':
+            self.last_print_had_newline = False
+        else:
+            self.last_print_had_newline = True
 
     def write_to_log_file(self, message):
         if self.log_file is None:
@@ -41,7 +45,7 @@ class Log():
                 self.log_file.write(message + '\n')
                 self.log_file.flush()  # Flush to ensure the message is written immediately
             except Exception as e:
-                print(f"Error writing to log file: {str(e)}")
+                builtins.print(f"Error writing to log file: {str(e)}")
                 self.close_log_file()
 
     def log(self, *messages, level='debug', clear=False, end='\n'):
@@ -60,10 +64,19 @@ class Log():
                     size = asizeof(self)
                     size = self.human_readable_size(size)
                     log_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}'
+                    if not self.last_print_had_newline:
+                        builtins.print()
+
                     if clear:
-                        print(log_message, end=end)
+                        builtins.print(log_message, end=end)
                     else:
-                        print(log_message, end=end)
+                        builtins.print(log_message, end=end)
+                        
+                    if end != '\n':
+                        self.last_print_had_newline = False
+                    else:
+                        self.last_print_had_newline = True                    
+                        
                     self.write_to_log_file(f"{log_message}")  # Write to the log file
 
     def log_size(self, key_path, item, above=5000000):
@@ -80,9 +93,12 @@ class Log():
                 else:
                     size = asizeof(item)
                     if size > above:
+                        if not self.last_print_had_newline:
+                            builtins.print()
+                            self.last_print_had_newline = True
                         size = self.human_readable_size(size)
                         log_message = f"[{class_name}] SIZE {key_path} {size}"
-                        print(log_message)
+                        builtins.print(log_message)
                         self.write_to_log_file(log_message)  # Write to the log file
 
         
@@ -104,9 +120,9 @@ class Log():
     #                 size = asizeof(self)
     #                 size = self.human_readable_size(size)
     #                 if clear:
-    #                     print(message, end=end)
+    #                     builtins.print(message, end=end)
     #                 else:
-    #                     print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}', end=end)        
+    #                     builtins.print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}', end=end)        
 
     # def log_size(self, key_path, item, above=5000000):
     #     class_name = self.__class__.__name__
@@ -124,7 +140,7 @@ class Log():
     #                 size = asizeof(item)
     #                 if size > above:
     #                     size = self.human_readable_size(size)
-    #                     print(f"[{class_name}] SIZE {key_path} {size}")
+    #                     builtins.print(f"[{class_name}] SIZE {key_path} {size}")
         
     def human_readable_size(self, size):
         # Your implementation of converting size to a human-readable format
@@ -202,17 +218,22 @@ class Log():
         try:
             self.log_file = open(self.file_path, 'a')  # Open the log file for appending
         except FileNotFoundError:
+            if self.file_path.startswith('output'):
+                log_dir = os.path.dirname(self.file_path)
+
+                if not os.path.exists(log_dir):
+                    os.makedirs(log_dir)
             # If the file doesn't exist, create it
             self.log_file = open(self.file_path, 'w')
         except Exception as e:
-            print(f"Error opening log file: {str(e)}")
+            builtins.print(f"Error opening log file: {str(e)}")
 
     def close_log_file(self):
         if self.log_file:
             try:
                 self.log_file.close()
             except Exception as e:
-                print(f"Error closing log file: {str(e)}")
+                builtins.print(f"Error closing log file: {str(e)}")
             self.log_file = None
 
     def write_to_log_file(self, message):     
@@ -224,7 +245,7 @@ class Log():
                 self.log_file.write(message + '\n')
                 self.log_file.flush()  # Flush to ensure the message is written immediately
             except Exception as e:
-                print(f"Error writing to log file: {str(e)}")
+                builtins.print(f"Error writing to log file: {str(e)}")
                 self.close_log_file()
 
     # def __del__(self):
