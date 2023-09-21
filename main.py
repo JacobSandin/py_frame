@@ -5,7 +5,7 @@ import ast
 import inspect
 import importlib
 import sys
-sys.path.append('./project/commands')
+
 # Check if the --debug flag is provided as an environment variable
 enable_debugging = os.environ.get('DEBUG', 'false').lower() == 'true'
 
@@ -47,7 +47,7 @@ from classes.ValuesStorage import ValuesStorage
 from classes.base.Log import Log
 
 class Main(Log):
-    def __init__(self):
+    def __init__(self,project, args):
         # Load the configuration
         config_loader = ConfigLoader()
         config_loader.load_config()
@@ -56,6 +56,8 @@ class Main(Log):
         super().__init__(self.values)
         self.config =self.values.get('config')
         self.debug(self.values.get("config"))
+        sys.path.append(f'./{project}/commands')
+        self.project = project
 
         self.commands = { }
         
@@ -64,15 +66,18 @@ class Main(Log):
         # Manually split known and unknown arguments
         #self.known_args, self.unknown_args = self.split_known_unknown_args(sys.argv[1:])
         self.parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
+        #self.parser.add_argument('--project', required=False, dest='project', type=str, help='The project name')
 
         self.subparsers = self.parser.add_subparsers(title='command', dest='command')
 
         #do this here so that all command classes can add their own sub-commands
         self.command_classes = self.get_command_classes()
 
-        self.args = self.parser.parse_args()
+        #self.args = self.parser.parse_args()
+        self.args = self.parser.parse_args(remaining_args)
 
         self.log(self.command_classes)
+        
         
         #parser.add_argument("--command", type=str, nargs='?', default='ExampleCommand', help="The command name, same as the file name in commands without .py.")
         #self.args, _ = parser.parse_known_args(self.known_args)
@@ -115,8 +120,9 @@ class Main(Log):
 
     def get_command_classes(self):
         class_names = []
-        if os.path.exists('./project/commands') and os.path.isdir('./project/commands'):
-            self.import_classes_from_directory('./project/commands', 'project.commands', class_names)
+        project_commands_dir = f'./{self.project}/commands'
+        if os.path.exists(project_commands_dir) and os.path.isdir(project_commands_dir):
+            self.import_classes_from_directory(project_commands_dir, 'project.commands', class_names)
 
         self.import_classes_from_directory('./commands', 'commands', class_names)
             
@@ -141,7 +147,7 @@ class Main(Log):
         #             self.do_class_static_methods(class_object, class_base_path='commands')
         #             class_names.append(class_name)
 
-        # commands_dir = './project/commands'
+        # commands_dir = project_commands_dir
         # if os.path.exists(commands_dir) and os.path.isdir(commands_dir):
         #     class_names = []
         #     for filename in os.listdir(commands_dir):
@@ -239,8 +245,26 @@ class Main(Log):
         
 
 if __name__ == "__main__":
-    values = ValuesStorage()
-    main=Main()
+
+    try:
+        parser = argparse.ArgumentParser(description="Pre parser")#,add_help=False)
+        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use')
+        args, remaining_args = parser.parse_known_args()
+    except SystemExit:
+        parser = argparse.ArgumentParser(description="Pre parser",add_help=False)
+        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use')
+        args, remaining_args = parser.parse_known_args()
+
+    
+    
+    if args.project:
+        # You can access the project_string here as args.project_string
+        main=Main(args.project, remaining_args)
+        print(f"Project String: {args.project}")
+    else:
+        main=Main('project', remaining_args)
+        print("No project string provided.")    
+    #values = ValuesStorage()
     main.run()
     
 
