@@ -50,13 +50,14 @@ class Main(Log):
     def __init__(self,project, args):
         # Load the configuration
         config_loader = ConfigLoader()
-        config_loader.load_config()
+        config_loader.load_config(project)
         self.values = ValuesStorage()
         self.values.set('config',config_loader.config)
         super().__init__(self.values)
         self.config =self.values.get('config')
         self.debug(self.values.get("config"))
-        sys.path.append(f'./{project}/commands')
+        sys.path.append(f'{project}/commands')
+        sys.path.append(f'{project}/classes')
         self.project = project
 
         self.commands = { }
@@ -122,7 +123,7 @@ class Main(Log):
         class_names = []
         project_commands_dir = f'./{self.project}/commands'
         if os.path.exists(project_commands_dir) and os.path.isdir(project_commands_dir):
-            self.import_classes_from_directory(project_commands_dir, 'project.commands', class_names)
+            self.import_classes_from_directory(project_commands_dir, f'{self.project}.commands', class_names)
 
         self.import_classes_from_directory('./commands', 'commands', class_names)
             

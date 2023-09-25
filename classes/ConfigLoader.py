@@ -7,7 +7,7 @@ class ConfigLoader(AddValues):
     def __init__(self):
         self.config = {}
 
-    def load_config(self):
+    def load_config(self, dir=None):
         # Load default configuration from config/config.py
         self._load_config_from_dir('config')
 
@@ -17,6 +17,10 @@ class ConfigLoader(AddValues):
         # Load local configuration from project directory
         self._load_config_from_dir('project/config')
         self._load_config_from_dir('project/local/config')
+        
+        if dir is not None:
+            self._load_config_from_dir(f"{dir}/config")
+            self._load_config_from_dir(f"{dir}/local/config")
 
     def _load_config_from_dir(self, config_dir):
         module_names = self._get_module_names(config_dir)

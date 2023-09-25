@@ -4,7 +4,7 @@ from pympler.asizeof import asizeof
 from datetime import datetime
 import sys
 from io import StringIO
-import builtins
+
 
 class Log():
     def __init__(self, values):
@@ -30,9 +30,11 @@ class Log():
 
     def print(self, *messages, **kwargs):
         message = " ".join(str(msg) for msg in messages)
-        builtins.print(*messages, **kwargs)
+        print(*messages, **kwargs)
+        
         if 'end' in kwargs and kwargs['end'] != '\n':
             self.last_print_had_newline = False
+            sys.stdout.flush()
         else:
             self.last_print_had_newline = True
 
@@ -45,7 +47,7 @@ class Log():
                 self.log_file.write(message + '\n')
                 self.log_file.flush()  # Flush to ensure the message is written immediately
             except Exception as e:
-                builtins.print(f"Error writing to log file: {str(e)}")
+                print(f"Error writing to log file: {str(e)}")
                 self.close_log_file()
 
     def log(self, *messages, level='debug', clear=False, end='\n'):
@@ -65,12 +67,12 @@ class Log():
                     size = self.human_readable_size(size)
                     log_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}'
                     if not self.last_print_had_newline:
-                        builtins.print()
+                        print()
 
                     if clear:
-                        builtins.print(log_message, end=end)
+                        print(log_message, end=end)
                     else:
-                        builtins.print(log_message, end=end)
+                        print(log_message, end=end)
                         
                     if end != '\n':
                         self.last_print_had_newline = False
@@ -94,53 +96,14 @@ class Log():
                     size = asizeof(item)
                     if size > above:
                         if not self.last_print_had_newline:
-                            builtins.print()
+                            print()
                             self.last_print_had_newline = True
                         size = self.human_readable_size(size)
                         log_message = f"[{class_name}] SIZE {key_path} {size}"
-                        builtins.print(log_message)
+                        print(log_message)
                         self.write_to_log_file(log_message)  # Write to the log file
 
         
-    # def log(self, *messages, level='debug', clear=False, end='\n'):
-    #     class_name = self.__class__.__name__
-    #     # Check if log filtering is enabled and regex patterns are set
-
-    #     if self.ok_to_log(level):
-    #         log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
-    #         log_exclude_regex = self.values.get(f'config.debug.{class_name}.exclude_regex', default=None)
-
-    #         # Concatenate all the messages into a single string
-    #         message = " ".join(str(msg) for msg in messages)
-
-    #         if log_include_regex is None or (log_include_regex and re.search(log_include_regex, message)):
-    #             if log_exclude_regex and re.search(log_exclude_regex, message):
-    #                 return  # Log message matches remove pattern, don't print
-    #             else:
-    #                 size = asizeof(self)
-    #                 size = self.human_readable_size(size)
-    #                 if clear:
-    #                     builtins.print(message, end=end)
-    #                 else:
-    #                     builtins.print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}', end=end)        
-
-    # def log_size(self, key_path, item, above=5000000):
-    #     class_name = self.__class__.__name__
-    #     message = f"[{class_name}] SIZE {key_path} = "
-    #     # Check if log filtering is enabled and regex patterns are set
-
-    #     if self.ok_to_log('debug'):
-    #         log_include_regex = self.values.get(f'config.debug.{class_name}.include_regex', default=None)
-    #         log_exclude_regex = self.values.get(f'config.debug.{class_name}.exclude_regex', default=None)
-
-    #         if log_include_regex is None or (log_include_regex and re.search(log_include_regex, message)):
-    #             if log_exclude_regex and re.search(log_exclude_regex, message):
-    #                 return
-    #             else:
-    #                 size = asizeof(item)
-    #                 if size > above:
-    #                     size = self.human_readable_size(size)
-    #                     builtins.print(f"[{class_name}] SIZE {key_path} {size}")
         
     def human_readable_size(self, size):
         # Your implementation of converting size to a human-readable format
@@ -226,14 +189,14 @@ class Log():
             # If the file doesn't exist, create it
             self.log_file = open(self.file_path, 'w')
         except Exception as e:
-            builtins.print(f"Error opening log file: {str(e)}")
+            print(f"Error opening log file: {str(e)}")
 
     def close_log_file(self):
         if self.log_file:
             try:
                 self.log_file.close()
             except Exception as e:
-                builtins.print(f"Error closing log file: {str(e)}")
+                print(f"Error closing log file: {str(e)}")
             self.log_file = None
 
     def write_to_log_file(self, message):     
@@ -245,7 +208,7 @@ class Log():
                 self.log_file.write(message + '\n')
                 self.log_file.flush()  # Flush to ensure the message is written immediately
             except Exception as e:
-                builtins.print(f"Error writing to log file: {str(e)}")
+                print(f"Error writing to log file: {str(e)}")
                 self.close_log_file()
 
     # def __del__(self):
