@@ -1,0 +1,9 @@
+{
+    "python.autoComplete.addBrackets": true,
+    "python.autoComplete.addParentheses": true,
+    "python.autoComplete.addQuotes": true,
+    "python.analysis.extraPaths": [
+        "~/utv/git/py_frame",
+        "./classes"
+    ]
+}
