@@ -117,7 +117,7 @@ class Log():
 
     def ok_to_log(self, level):
         class_name = self.__class__.__name__
-        config_debug = self.values.get('config.debug.debug')
+        config_debug = self.values.get('config.debug.Default')
         
         if self.values.get('config.debug.full', default=False):
             return True

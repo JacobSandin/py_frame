@@ -3,6 +3,12 @@ CONFIG = {
     'log_level': ['debug', 'info', 'warning', 'error'],
     'override': False,
     'full': False, #Gives fucking everything no pardon
+
+
+    'Default' : {
+        'log_level': ['debug', 'info', 'warning', 'error'],
+        'force': True,
+    },
     
     'Main' : {
         'log_level': ['debug', 'info', 'warning', 'error'],
