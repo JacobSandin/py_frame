@@ -1,11 +1,15 @@
 from commands.base.Command import Command
 import argparse
 
+#from classes.DataUtils import DataUtils
+
 # TODO: Change the class name
 class ExampleCommand2(Command):
     # TODO: Enable if you need to set values here
     # def __init__(self, values, args):
     #     super().__init__(values, args)
+    #     self.db = DataUtils(self.values)
+    #     self.check_tables()
         
     @staticmethod
     def get_command():
@@ -33,7 +37,27 @@ class ExampleCommand2(Command):
         parser_name = subparsers.add_parser('RunExample2', help='Run.Example sub-parser', parents=[shared_parser])
         parser_name.add_argument('--ex2', required=False, help='This option is specific to Example22')
         
-        
+    """
+        Create tables that are in sql.py config file.
+        ex:
+        CONFIG = {
+            'create': {
+                'table': '''
+                    CREATE TABLE IF NOT EXISTS `table` (
+                        `datetime` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+                    )
+                    COLLATE='utf8mb4_swedish_ci'
+                    ENGINE=InnoDB
+                    ;                    
+                ''',
+            }
+        }
+    """
+    def check_tables(self):
+        creates = self.values.get('config.sql.create')
+        for table in creates:
+            self.debug("Creating table: " + table)
+            self.db.sql(creates[table])           
         
     def run(self):
         # TODO: Remove the bellow code and write your own logic
