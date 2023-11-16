@@ -87,7 +87,6 @@ class DataUtils(AddValues):
                 result = cursor.fetchall()
                 columns = [desc[0] for desc in cursor.description]
                 return {row[0]: dict(zip(columns[1:], row[1:])) for row in result}
-
             return
         except Exception as e:
             query2 = re.sub(r'\s+', ' ', query)[:100]
