@@ -12,3 +12,4 @@ logs/
 tmp/
 project/
 output/
+*.code-workspace
