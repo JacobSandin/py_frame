@@ -97,6 +97,7 @@ class DataUtils(AddValues):
                 cursor.close()
                 
     def sql(self, query, args=None, return_data=False, many=False, warn_seconds=2,return_id=False):
+        cursor = None
         try:
             connection = self.get_mysql_connection()
             cursor = connection.cursor()
