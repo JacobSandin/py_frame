@@ -6,7 +6,7 @@ __pycache__/
 *_old/
 
 proj_*
-
+project_*
 local/
 logs/
 tmp/
