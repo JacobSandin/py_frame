@@ -45,6 +45,7 @@ class DataUtils(AddValues):
                 return self.connection  # Connection is alive, return it
             except pymysql.Error as e:
                 # If an exception is raised, it indicates that the connection is dead
+                self.debug(f"Failed to ping MySQL server: {str(e)}")
                 self.connection.close()
                 time.sleep(10)  # Add a delay before retrying
         raise Exception(f"Failed to ping MySQL server after {max_retries} retries. Connection may be dead.")
