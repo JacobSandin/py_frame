@@ -127,8 +127,8 @@ class Main(Log):
 
         self.import_classes_from_directory('./commands', 'commands', class_names)
             
-        if os.path.exists('./project_example/commands') and os.path.isdir('./project_example/commands'):
-            self.import_classes_from_directory('./project_example/commands', 'project_example.commands', class_names)
+        # if os.path.exists('./project_example/commands') and os.path.isdir('./project_example/commands'):
+        #     self.import_classes_from_directory('./project_example/commands', 'project_example.commands', class_names)
 
         return class_names
          
