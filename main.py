@@ -66,7 +66,7 @@ class Main(Log):
         
         # Manually split known and unknown arguments
         #self.known_args, self.unknown_args = self.split_known_unknown_args(sys.argv[1:])
-        self.parser = argparse.ArgumentParser(description="Run the ticker with the specified commodity.")
+        self.parser = argparse.ArgumentParser(description="Run the py_frame.")
         #self.parser.add_argument('--project', required=False, dest='project', type=str, help='The project name')
 
         self.subparsers = self.parser.add_subparsers(title='command', dest='command')
@@ -249,11 +249,11 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser(description="Pre parser")#,add_help=False)
-        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use')
+        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use. (Normally starts with the name proj*)')
         args, remaining_args = parser.parse_known_args()
     except SystemExit:
         parser = argparse.ArgumentParser(description="Pre parser",add_help=False)
-        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use')
+        parser.add_argument('--project-dir', required=False, dest='project', type=str, help='The project directory to use. (Normally starts with the name proj*)')
         args, remaining_args = parser.parse_known_args()
 
     
