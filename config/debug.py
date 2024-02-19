@@ -1,6 +1,7 @@
 CONFIG = {
     'file_path': 'output/py_frame.log', # If it starts with output the output dir will be created if it doesn't exist
     'log_level': ['debug', 'info', 'warning', 'error'],
+    'print_to_stdout': True,
     'override': False,
     'full': False, #Gives fucking everything no pardon
 

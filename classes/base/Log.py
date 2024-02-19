@@ -66,13 +66,14 @@ class Log():
                     size = asizeof(self)
                     size = self.human_readable_size(size)
                     log_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} [{class_name} ({size})] {level.upper()} {message}'
-                    if not self.last_print_had_newline:
-                        print()
+                    if self.values.get('config.debug.print_to_stdout', default=False):
+                        if not self.last_print_had_newline:
+                            print()
 
-                    if clear:
-                        print(log_message, end=end)
-                    else:
-                        print(log_message, end=end)
+                        if clear:
+                            print(log_message, end=end)
+                        else:
+                            print(log_message, end=end)
                         
                     if end != '\n':
                         self.last_print_had_newline = False
