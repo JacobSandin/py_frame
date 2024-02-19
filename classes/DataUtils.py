@@ -19,7 +19,19 @@ class DataUtils(AddValues):
     ###########################################            
         
     def get_mysql_connection(self, max_retries=3):
+        login_info = self.values.get('config.config.login_info')
+        local_info = {
+            'host': login_info['host'],
+            'port': login_info['port'],
+            'user': login_info['user'],
+            'password': login_info['password'],
+            'database': login_info['database'], 
+            'connect_timeout': 120
+        }
+        return pymysql.connect(**local_info)
+    
         for _ in range(max_retries):
+            
             if not self.connection or not self.connection.open:
                 login_info = self.values.get('config.config.login_info')
                 local_info = {
