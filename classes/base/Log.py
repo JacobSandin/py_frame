@@ -7,11 +7,22 @@ from io import StringIO
 
 
 class Log():
+    # Class-level cache for open file handles (shared across instances)
+    _log_files = {}
+    
     def __init__(self, values):
         self.values = values
-        self.file_path = self.values.get('config.debug.file_path')
-        self.log_file = None
-        self.last_print_had_newline = True  
+        self.last_print_had_newline = True
+    
+    def _get_file_path(self):
+        """Get file_path for current class, with fallback to global"""
+        class_name = self.__class__.__name__
+        # Check class-specific file_path first
+        class_file_path = self.values.get(f'config.debug.{class_name}.file_path', default=None)
+        if class_file_path:
+            return class_file_path
+        # Fallback to global file_path
+        return self.values.get('config.debug.file_path', default=None)  
         
     def trace(self, *messages):
         self.log(*messages, level='trace')
@@ -37,18 +48,6 @@ class Log():
             sys.stdout.flush()
         else:
             self.last_print_had_newline = True
-
-    def write_to_log_file(self, message):
-        if self.log_file is None:
-            self.open_log_file()
-
-        if self.log_file:
-            try:
-                self.log_file.write(message + '\n')
-                self.log_file.flush()  # Flush to ensure the message is written immediately
-            except Exception as e:
-                print(f"Error writing to log file: {str(e)}")
-                self.close_log_file()
 
     def log(self, *messages, level='debug', clear=False, end='\n'):
         class_name = self.__class__.__name__
@@ -178,39 +177,42 @@ class Log():
     #     else:
     #         return obj_config.get('debug', config_debug)
     
-    def open_log_file(self):
+    def _open_log_file(self, file_path):
+        """Open a log file and cache the handle"""
+        if file_path in Log._log_files:
+            return Log._log_files[file_path]
+        
         try:
-            self.log_file = open(self.file_path, 'a')  # Open the log file for appending
+            log_file = open(file_path, 'a')
+            Log._log_files[file_path] = log_file
+            return log_file
         except FileNotFoundError:
-            if self.file_path.startswith('output'):
-                log_dir = os.path.dirname(self.file_path)
-
-                if not os.path.exists(log_dir):
+            if file_path.startswith('output'):
+                log_dir = os.path.dirname(file_path)
+                if log_dir and not os.path.exists(log_dir):
                     os.makedirs(log_dir)
-            # If the file doesn't exist, create it
-            self.log_file = open(self.file_path, 'w')
+            log_file = open(file_path, 'w')
+            Log._log_files[file_path] = log_file
+            return log_file
         except Exception as e:
-            print(f"Error opening log file: {str(e)}")
+            print(f"Error opening log file {file_path}: {str(e)}")
+            return None
 
-    def close_log_file(self):
-        if self.log_file:
+    def write_to_log_file(self, message):
+        file_path = self._get_file_path()
+        if not file_path:
+            return
+        
+        log_file = self._open_log_file(file_path)
+        if log_file:
             try:
-                self.log_file.close()
-            except Exception as e:
-                print(f"Error closing log file: {str(e)}")
-            self.log_file = None
-
-    def write_to_log_file(self, message):     
-        if self.log_file is None:
-            self.open_log_file()
-
-        if self.log_file:
-            try:
-                self.log_file.write(message + '\n')
-                self.log_file.flush()  # Flush to ensure the message is written immediately
+                log_file.write(message + '\n')
+                log_file.flush()
             except Exception as e:
                 print(f"Error writing to log file: {str(e)}")
-                self.close_log_file()
+                # Remove from cache so it can be reopened
+                if file_path in Log._log_files:
+                    del Log._log_files[file_path]
 
     # def __del__(self):
     #     if self.file_path is None:
