@@ -9,6 +9,7 @@ from io import StringIO
 class Log():
     # Class-level cache for open file handles (shared across instances)
     _log_files = {}
+    _log_inodes = {}  # Track inode to detect log rotation
     
     def __init__(self, values):
         self.values = values
@@ -185,6 +186,7 @@ class Log():
         try:
             log_file = open(file_path, 'a')
             Log._log_files[file_path] = log_file
+            Log._log_inodes[file_path] = os.fstat(log_file.fileno()).st_ino
             return log_file
         except FileNotFoundError:
             if file_path.startswith('output'):
@@ -193,15 +195,49 @@ class Log():
                     os.makedirs(log_dir)
             log_file = open(file_path, 'w')
             Log._log_files[file_path] = log_file
+            Log._log_inodes[file_path] = os.fstat(log_file.fileno()).st_ino
             return log_file
         except Exception as e:
             print(f"Error opening log file {file_path}: {str(e)}")
             return None
+    
+    def _check_log_rotation(self, file_path):
+        """Check if log file was rotated and reopen if needed"""
+        if file_path not in Log._log_files:
+            return
+        
+        try:
+            current_inode = os.stat(file_path).st_ino
+            cached_inode = Log._log_inodes.get(file_path)
+            
+            if cached_inode and current_inode != cached_inode:
+                # File was rotated, close old handle and remove from cache
+                old_file = Log._log_files.pop(file_path, None)
+                if old_file:
+                    try:
+                        old_file.close()
+                    except Exception:
+                        pass
+                Log._log_inodes.pop(file_path, None)
+        except FileNotFoundError:
+            # File doesn't exist yet (will be created on next write)
+            old_file = Log._log_files.pop(file_path, None)
+            if old_file:
+                try:
+                    old_file.close()
+                except Exception:
+                    pass
+            Log._log_inodes.pop(file_path, None)
+        except Exception:
+            pass
 
     def write_to_log_file(self, message):
         file_path = self._get_file_path()
         if not file_path:
             return
+        
+        # Check if log was rotated before writing
+        self._check_log_rotation(file_path)
         
         log_file = self._open_log_file(file_path)
         if log_file:
