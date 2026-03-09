@@ -6,6 +6,9 @@ import inspect
 import importlib
 import sys
 
+# Get the directory where this script is located (for running from any cwd)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Check if the --debug flag is provided as an environment variable
 enable_debugging = os.environ.get('DEBUG', 'false').lower() == 'true'
 
@@ -56,8 +59,8 @@ class Main(Log):
         super().__init__(self.values)
         self.config =self.values.get('config')
         self.debug(self.values.get("config"))
-        sys.path.append(f'{project}/commands')
-        sys.path.append(f'{project}/classes')
+        sys.path.append(os.path.join(SCRIPT_DIR, project, 'commands'))
+        sys.path.append(os.path.join(SCRIPT_DIR, project, 'classes'))
         self.project = project
 
         self.commands = { }
@@ -121,11 +124,11 @@ class Main(Log):
 
     def get_command_classes(self):
         class_names = []
-        project_commands_dir = f'./{self.project}/commands'
+        project_commands_dir = os.path.join(SCRIPT_DIR, self.project, 'commands')
         if os.path.exists(project_commands_dir) and os.path.isdir(project_commands_dir):
             self.import_classes_from_directory(project_commands_dir, f'{self.project}.commands', class_names)
 
-        self.import_classes_from_directory('./commands', 'commands', class_names)
+        self.import_classes_from_directory(os.path.join(SCRIPT_DIR, 'commands'), 'commands', class_names)
             
         # if os.path.exists('./project_example/commands') and os.path.isdir('./project_example/commands'):
         #     self.import_classes_from_directory('./project_example/commands', 'project_example.commands', class_names)

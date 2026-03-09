@@ -1,6 +1,10 @@
 import importlib.util
 import os
 from classes.base.AddValues import AddValues
+
+# Get the py_frame root directory (parent of 'classes' where this file is located)
+_PYFRAME_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 #Loads config from local/config/ or if missing there it uses config found in config/
 
 class ConfigLoader(AddValues):
@@ -32,14 +36,16 @@ class ConfigLoader(AddValues):
 
     def _get_module_names(self, config_dir):
         module_names = []
-        if os.path.isdir(config_dir):
-            for filename in os.listdir(config_dir):
+        abs_config_dir = os.path.join(_PYFRAME_ROOT, config_dir)
+        if os.path.isdir(abs_config_dir):
+            for filename in os.listdir(abs_config_dir):
                 if filename.endswith('.py') and not filename.startswith('__'):
                     module_names.append(os.path.splitext(filename)[0])
         return module_names
 
     def _import_module(self, module_name):
-        spec = importlib.util.spec_from_file_location(module_name, f'{module_name.replace(".", "/")}.py')
+        module_path = os.path.join(_PYFRAME_ROOT, f'{module_name.replace(".", "/")}.py')
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
