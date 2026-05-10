@@ -178,22 +178,29 @@ class Log():
     #     else:
     #         return obj_config.get('debug', config_debug)
     
+    # py_frame root = 2 levels up from classes/base/Log.py
+    _PY_FRAME_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    @classmethod
+    def _resolve_path(cls, file_path):
+        """Resolve relative paths against py_frame root, not CWD."""
+        if os.path.isabs(file_path):
+            return file_path
+        return os.path.join(cls._PY_FRAME_ROOT, file_path)
+
     def _open_log_file(self, file_path):
         """Open a log file and cache the handle"""
+        file_path = self._resolve_path(file_path)
+
         if file_path in Log._log_files:
             return Log._log_files[file_path]
         
+        log_dir = os.path.dirname(file_path)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
         try:
             log_file = open(file_path, 'a')
-            Log._log_files[file_path] = log_file
-            Log._log_inodes[file_path] = os.fstat(log_file.fileno()).st_ino
-            return log_file
-        except FileNotFoundError:
-            if file_path.startswith('output'):
-                log_dir = os.path.dirname(file_path)
-                if log_dir and not os.path.exists(log_dir):
-                    os.makedirs(log_dir)
-            log_file = open(file_path, 'w')
             Log._log_files[file_path] = log_file
             Log._log_inodes[file_path] = os.fstat(log_file.fileno()).st_ino
             return log_file
